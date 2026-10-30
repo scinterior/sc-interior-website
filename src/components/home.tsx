@@ -37,7 +37,7 @@ const slides = [
     tag: "OUR FACTORY",
     title: "FROM OUR FACTORY TO YOUR SPACE",
     th: "จากโรงงานของเรา… สู่ทุกพื้นที่ที่คุณไว้วางใจ",
-    image: "/images/living.webp",
+    image: "/images/sc-factory.png",
   },
 ];
 function Hero() {
@@ -72,7 +72,7 @@ function Hero() {
     setIndex((i) => (i + d + slides.length) % slides.length);
   return (
     <section
-      className={`hero ${running ? "is-playing" : "is-paused"}`}
+      className={`hero ${running ? "is-playing" : "is-paused"} ${index === 3 ? "hero--factory" : ""}`}
       aria-roledescription="carousel"
       aria-label={t("แนวคิดการออกแบบ 4 สไลด์", "Design concepts, 4 slides")}
       onTouchStart={(e) => {
@@ -90,7 +90,7 @@ function Hero() {
         <div
           key={s.tag}
           aria-hidden={i !== index}
-          className={`hero-slide ${i === index ? "active" : ""}`}
+          className={`hero-slide ${i === index ? "active" : ""} ${i === 3 ? "hero-slide--factory" : ""}`}
         >
           <Image
             src={s.image}
@@ -123,10 +123,15 @@ function Hero() {
       </div>
       <div className="hero-bottom">
         <span className="hero-disclaimer">
-          {t(
-            "ภาพแนวคิด AI ตัวอย่าง · ไม่ใช่ผลงานหรือภาพโรงงานจริง",
-            "AI concept placeholder · not an actual project or factory",
-          )}
+          {index === 3
+            ? t(
+                "ภาพโรงงาน SC Interior · ภาพต้นฉบับที่บริษัทจัดส่ง",
+                "SC Interior factory · original image supplied by the company",
+              )
+            : t(
+                "ภาพแนวคิด AI ตัวอย่าง · ไม่ใช่ผลงานหรือภาพโรงงานจริง",
+                "AI concept placeholder · not an actual project or factory",
+              )}
         </span>
         <div className="slider-controls">
           <span aria-live={running ? "off" : "polite"}>

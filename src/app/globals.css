@@ -1538,3 +1538,63 @@ svg {
   justify-content: center;
   gap: 0;
 }
+
+/* Slide 04 only: preserve the supplied artwork and keep HTML copy off its logo. */
+.hero-slide--factory {
+  left: 42%;
+  right: 2%;
+  top: 28px;
+  bottom: 110px;
+}
+.hero-slide--factory .hero-image {
+  object-fit: contain;
+  padding: 6%;
+}
+.hero--factory .hero-copy {
+  max-width: 34vw;
+}
+.hero--factory h1 {
+  font-size: clamp(30px, 3.1vw, 49px);
+  line-height: 1.15;
+}
+.hero--factory .hero-links {
+  flex-wrap: wrap;
+  gap: 16px 24px;
+}
+.hero--factory .hero-shade {
+  background: linear-gradient(90deg, #17120b66, transparent 42%);
+}
+.hero--factory .scroll-cue {
+  display: none;
+}
+@media (max-width: 800px) {
+  .hero--factory {
+    height: auto;
+    min-height: max(640px, calc(100svh - var(--header)));
+    max-height: none;
+    padding: 20px 6vw 125px;
+  }
+  .hero--factory .hero-slide--factory {
+    position: relative;
+    inset: auto;
+    aspect-ratio: 1672 / 941;
+    width: 100%;
+    overflow: hidden;
+  }
+  .hero--factory .hero-copy {
+    position: relative;
+    inset: auto;
+    transform: none;
+    max-width: none;
+    margin-top: 26px;
+  }
+  .hero--factory h1 {
+    font-size: clamp(29px, 5vw, 42px);
+  }
+  .hero--factory .hero-links {
+    margin-top: 22px;
+  }
+  .hero--factory .hero-shade {
+    background: none;
+  }
+}
