@@ -19,25 +19,29 @@ const slides = [
     tag: "INTERIOR DESIGN",
     title: "DESIGNING SPACES, DEFINING LIFESTYLES",
     th: "ออกแบบทุกพื้นที่ ให้เป็นตัวคุณ",
-    image: "/images/living.webp",
+    image: "/images/home-slide-01.png.png",
+    position: "60% center",
   },
   {
     tag: "BUILT-IN FURNITURE",
     title: "CRAFTED TO PERFECTION",
     th: "ทุกรายละเอียด สร้างสรรค์อย่างตั้งใจ",
-    image: "/images/kitchen.webp",
+    image: "/images/home-slide-02.png.png",
+    position: "55% center",
   },
   {
     tag: "MODERN LUXURY",
     title: "WHERE ELEGANCE MEETS FUNCTION",
     th: "ความสวยงามที่มาพร้อมฟังก์ชัน",
-    image: "/images/bedroom.webp",
+    image: "/images/home-slide-03.png.png",
+    position: "65% center",
   },
   {
     tag: "OUR FACTORY",
     title: "FROM OUR FACTORY TO YOUR SPACE",
     th: "จากโรงงานของเรา… สู่ทุกพื้นที่ที่คุณไว้วางใจ",
-    image: "/images/sc-factory.png",
+    image: "/images/home-slide-04.png.png",
+    position: "left center",
   },
 ];
 function Hero() {
@@ -96,9 +100,10 @@ function Hero() {
             src={s.image}
             alt=""
             fill
-            sizes="100vw"
+            sizes={i === 3 ? "max(100vw, 280vh)" : "max(100vw, 180vh)"}
             priority={i === 0}
             className="hero-image"
+            style={{ objectPosition: s.position }}
           />
         </div>
       ))}
