@@ -7,8 +7,13 @@ import "@fontsource/noto-sans-thai/400.css";
 import "@fontsource/noto-sans-thai/500.css";
 import "@fontsource/noto-sans-thai/600.css";
 import "./globals.css";
+import { Site } from "@/components/site";
 export const metadata: Metadata = {
-  title: "SC Interior | ออกแบบตกแต่งภายใน บิลท์อิน และรีโนเวท",
+  metadataBase: new URL("https://sc-interior-website.vercel.app"),
+  title: {
+    default: "SC Interior | Interior Design, Built-in & Renovation",
+    template: "%s | SC Interior",
+  },
   description:
     "SC Interior บริษัท ศักดิ์ชายการช่าง จำกัด ออกแบบตกแต่งภายใน เฟอร์นิเจอร์บิลท์อิน และรีโนเวท จากโรงงานของเรา สู่ทุกพื้นที่ที่คุณไว้วางใจ",
   robots: { index: true, follow: true },
@@ -19,6 +24,14 @@ export const metadata: Metadata = {
     locale: "th_TH",
     alternateLocale: ["en_US"],
     type: "website",
+    images: [
+      {
+        url: "/images/living.webp",
+        width: 1536,
+        height: 1024,
+        alt: "SC Interior — AI concept placeholder, not a completed project",
+      },
+    ],
   },
 };
 export default function RootLayout({
@@ -30,7 +43,7 @@ export default function RootLayout({
         <noscript>
           <style>{`.reveal{opacity:1;transform:none}`}</style>
         </noscript>
-        {children}
+        <Site>{children}</Site>
       </body>
     </html>
   );
