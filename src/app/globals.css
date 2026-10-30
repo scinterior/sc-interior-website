@@ -220,12 +220,13 @@ main {
 }
 .navigation {
   display: flex;
-  gap: 28px;
+  gap: clamp(20px, 2vw, 32px);
   align-items: center;
 }
 .navigation a {
   position: relative;
-  font-size: 12px;
+  font-size: 18px;
+  white-space: nowrap;
   padding: 10px 0;
 }
 .navigation a:after {
@@ -1083,10 +1084,10 @@ main {
 }
 @media (max-width: 1050px) {
   .navigation {
-    gap: 17px;
+    gap: 14px;
   }
   .navigation a {
-    font-size: 11px;
+    font-size: 16px;
   }
   .site-header {
     gap: 15px;
@@ -1164,7 +1165,7 @@ main {
     gap: 0;
   }
   .navigation a {
-    font-size: 18px;
+    font-size: 16px;
     padding: 14px 0;
   }
   .hero {
@@ -1313,6 +1314,9 @@ main {
   }
 }
 @media (max-width: 520px) {
+  .navigation a {
+    font-size: 18px;
+  }
   body {
     font-size: 13px;
   }
