@@ -14,13 +14,16 @@ export async function generateMetadata({
   const lang = await pageLanguage(searchParams);
   return {
     ...seo[lang],
+    alternates: {
+      canonical: lang === "en" ? "/?lang=en" : "/",
+      languages: { th: "/", en: "/?lang=en" },
+    },
     openGraph: {
       ...seo[lang],
       type: "website",
       locale: lang === "th" ? "th_TH" : "en_US",
       alternateLocale: [lang === "th" ? "en_US" : "th_TH"],
     },
-    alternates: { languages: { th: "/", en: "/?lang=en" } },
   };
 }
 export default async function Page({ searchParams }: PageProps) {
