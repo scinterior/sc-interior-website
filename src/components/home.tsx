@@ -129,11 +129,8 @@ function Hero() {
       <div className="hero-bottom">
         <span className="hero-disclaimer">
           {index === 3
-            ? t(
-                "ภาพโรงงาน SC Interior · ภาพต้นฉบับที่บริษัทจัดส่ง",
-                "SC Interior factory · original image supplied by the company",
-              )
-            : "AI Interior Concept | ภาพแนวคิดการออกแบบ"}
+            ? "SC INTERIOR | OUR FACTORY"
+            : "SC INTERIOR | DESIGN • BUILT-IN • RENOVATION"}
         </span>
         <div className="slider-controls">
           <span aria-live={running ? "off" : "polite"}>
