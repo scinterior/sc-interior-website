@@ -1,13 +1,15 @@
 "use client";
 import { useEffect, useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import ProjectGallery from "./project-gallery";
+import Quotation from "./quotation";
 import {
   ArrowUpRight,
   ArrowRight,
   Menu,
   X,
-  Phone,
   MessageCircle,
-  MoveUpRight,
   Ruler,
   PanelsTopLeft,
   Armchair,
@@ -16,11 +18,9 @@ import {
   Plus,
   Minus,
 } from "lucide-react";
-import { images, company, services } from "@/lib/content";
-export default function Home() {
-  const [lang, setLang] = useState<"th" | "en">("th");
+import { images, company, services, type Language } from "@/lib/content";
+export default function Home({ lang = "th" }: { lang?: Language }) {
   const [menu, setMenu] = useState(false);
-  const [gallery, setGallery] = useState<number | null>(null);
   const [notice, setNotice] = useState("");
   const [faq, setFaq] = useState<number | null>(0);
   const t = (th: string, en: string) => (lang === "th" ? th : en);
@@ -42,62 +42,23 @@ export default function Home() {
     return () => observer.disconnect();
   }, []);
   useEffect(() => {
-    if (gallery === null) return;
-    const focused = document.activeElement as HTMLElement | null;
-    const handle = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setGallery(null);
-      if (e.key === "ArrowRight")
-        setGallery((n) => (n === null ? null : (n + 1) % 3));
-      if (e.key === "ArrowLeft")
-        setGallery((n) => (n === null ? null : (n + 2) % 3));
-      if (e.key === "Tab") {
-        const buttons =
-          document.querySelectorAll<HTMLButtonElement>(".lightbox button");
-        const first = buttons[0],
-          last = buttons[buttons.length - 1];
-        if (e.shiftKey && document.activeElement === first) {
-          e.preventDefault();
-          last?.focus();
-        } else if (!e.shiftKey && document.activeElement === last) {
-          e.preventDefault();
-          first?.focus();
-        }
+    if (!menu) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setMenu(false);
+        document.querySelector<HTMLButtonElement>(".menu-button")?.focus();
       }
     };
-    document.addEventListener("keydown", handle);
-    const previous = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.removeEventListener("keydown", handle);
-      document.body.style.overflow = previous;
-      focused?.focus();
-    };
-  }, [gallery]);
+    document.addEventListener("keydown", closeOnEscape);
+    return () => document.removeEventListener("keydown", closeOnEscape);
+  }, [menu]);
   const nav = [
-    ["about", t("เกี่ยวกับเรา", "Our story")],
+    ["home", t("หน้าแรก", "Home")],
+    ["about", t("เกี่ยวกับเรา", "About Us")],
     ["services", t("บริการของเรา", "Services")],
-    ["projects", t("แรงบันดาลใจ", "Inspiration")],
-    ["process", t("ขั้นตอนการทำงาน", "Our process")],
-  ];
-  const samples = [
-    {
-      image: images.hero,
-      title: "The Warm Living",
-      type: t(
-        "พื้นที่นั่งเล่น · ภาพตัวอย่าง",
-        "Living space · Reference image",
-      ),
-    },
-    {
-      image: images.bedroom,
-      title: "A Quiet Retreat",
-      type: t("ห้องนอน · ภาพตัวอย่าง", "Bedroom · Reference image"),
-    },
-    {
-      image: images.kitchen,
-      title: "Everyday Harmony",
-      type: t("ห้องครัว · ภาพตัวอย่าง", "Kitchen · Reference image"),
-    },
+    ["projects", t("ผลงานของเรา", "Our Projects")],
+    ["process", t("ขั้นตอนการทำงาน", "Our Process")],
+    ["contact", t("ติดต่อเรา", "Contact Us")],
   ];
   const socialContact = (url: string) => {
     if (url) window.open(url, "_blank", "noopener,noreferrer");
@@ -106,14 +67,21 @@ export default function Home() {
   const contact = () => {
     setNotice(
       t(
-        "กรุณาโทร 081-576-0104 ขณะนี้ยังไม่ได้ระบุบัญชี LINE Official และ Messenger ที่ยืนยันแล้ว",
-        "Please call 081-576-0104. Verified LINE Official and Messenger accounts have not been provided yet.",
+        "ลิงก์ LINE Official อยู่ระหว่างรอข้อมูล กรุณาโทร 081-576-0104 หรือติดต่อ Facebook SCinteriorThailand",
+        "Our LINE Official link is pending. Please call 081-576-0104 or contact Facebook SCinteriorThailand.",
       ),
     );
-    document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
+    document.getElementById("contact")?.scrollIntoView({
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        ? "instant"
+        : "smooth",
+    });
   };
   return (
     <>
+      <a className="skip-link" href="#main-content">
+        {t("ข้ามไปเนื้อหา", "Skip to content")}
+      </a>
       <header className="header">
         <a href="#home" className="brand" aria-label="SC Interior Home">
           <span>
@@ -122,6 +90,7 @@ export default function Home() {
           <small>DESIGN · BUILT-IN · RENOVATION</small>
         </a>
         <nav
+          id="main-navigation"
           className={menu ? "navigation open" : "navigation"}
           aria-label={t("เมนูหลัก", "Main navigation")}
         >
@@ -132,15 +101,16 @@ export default function Home() {
           ))}
         </nav>
         <div className="header-actions">
-          <button
+          <Link
             className="language"
-            onClick={() => setLang(lang === "th" ? "en" : "th")}
-            aria-label="Switch language"
+            href={lang === "th" ? "/?lang=en" : "/"}
+            hrefLang={lang === "th" ? "en" : "th"}
+            aria-label={t("Switch to English", "เปลี่ยนเป็นภาษาไทย")}
           >
             <span className={lang === "th" ? "active" : ""}>TH</span>
             <span className="language-divider">/</span>
             <span className={lang === "en" ? "active" : ""}>EN</span>
-          </button>
+          </Link>
           <a href="#contact" className="header-contact">
             {t("พูดคุยกับเรา", "Let’s talk")} <ArrowUpRight size={16} />
           </a>
@@ -148,39 +118,48 @@ export default function Home() {
             className="menu-button"
             aria-label="Toggle menu"
             aria-expanded={menu}
+            aria-controls="main-navigation"
             onClick={() => setMenu(!menu)}
           >
             {menu ? <X /> : <Menu />}
           </button>
         </div>
       </header>
-      <main className="min-w-0">
+      <main id="main-content" className="min-w-0" lang={lang}>
         <section className="hero" id="home">
-          <img
+          <Image
+            fill
+            sizes="100vw"
             className="hero-image"
             src={images.hero}
             alt={t(
               "ภาพตัวอย่างห้องนั่งเล่นโทนธรรมชาติ ตกแต่งด้วยไม้และเฟอร์นิเจอร์เรียบหรู",
               "Reference interior with natural wood and warm neutral furniture",
             )}
+            loading="eager"
             fetchPriority="high"
           />
           <div className="hero-shade" />
           <div className="hero-content">
             <div className="eyebrow light">
-              <span /> SPACES THAT FEEL LIKE YOU
+              <span /> DESIGN • BUILT-IN • RENOVATION
             </div>
-            <h1>
-              {t("พื้นที่ที่ใช่", "Thoughtful spaces.")}
-              <br />
-              <em>{t("ในแบบที่เป็นคุณ", "Beautifully yours.")}</em>
+            <h1 className={lang === "en" ? "hero-title-en" : undefined}>
+              {lang === "th" ? (
+                <>
+                  ออกแบบทุกพื้นที่
+                  <br />
+                  <em>ให้เป็นตัวคุณ</em>
+                </>
+              ) : (
+                <>
+                  DESIGN • BUILT-IN
+                  <br />
+                  <em>• RENOVATION</em>
+                </>
+              )}
             </h1>
             <p>
-              {t(
-                "ออกแบบอย่างเข้าใจ ใส่ใจในทุกรายละเอียด",
-                "Designed with understanding. Crafted with care.",
-              )}
-              <br />
               {t(
                 "จากโรงงานของเรา… สู่ทุกพื้นที่ที่คุณไว้วางใจ",
                 "From our factory… to every space you trust us with.",
@@ -188,7 +167,7 @@ export default function Home() {
             </p>
             <div className="hero-buttons">
               <a className="button orange" href="#projects">
-                {t("ค้นหาแรงบันดาลใจ", "Explore inspiration")}{" "}
+                {t("ดูผลงานของเรา", "View Our Projects")}{" "}
                 <ArrowUpRight size={18} />
               </a>
               <a href="#contact" className="hero-secondary">
@@ -220,7 +199,9 @@ export default function Home() {
         </div>
         <section id="about" className="section about reveal">
           <div className="about-photo">
-            <img
+            <Image
+              fill
+              sizes="(max-width: 760px) 100vw, 50vw"
               src={images.detail}
               alt={t(
                 "ภาพตัวอย่างรายละเอียดวัสดุไม้และเฟอร์นิเจอร์ภายใน",
@@ -234,22 +215,16 @@ export default function Home() {
             </div>
           </div>
           <div className="about-copy">
-            <p className="eyebrow">01 / OUR STORY</p>
-            <h2>
-              {t("มากกว่าพื้นที่สวยงาม", "More than a beautiful space.")}
+            <p className="eyebrow">01 / ABOUT SC INTERIOR</p>
+            <h2 className="about-heading">
+              SC INTERIOR
               <br />
-              <span>{t("คือความใส่ใจที่สัมผัสได้", "Care you can feel.")}</span>
+              <span>DESIGN &amp; BUILT-IN SPECIALIST</span>
             </h2>
             <p className="body-copy">
               {t(
-                "เราเชื่อว่าพื้นที่ที่ดี เริ่มต้นจากความเข้าใจในตัวคุณ SC Interior (บริษัท ศักดิ์ชายการช่าง จำกัด) ดูแลการออกแบบตกแต่งภายใน ผลิตเฟอร์นิเจอร์บิลท์อิน และรีโนเวท ให้ทุกพื้นที่ตอบโจทย์การใช้ชีวิตจริง",
-                "We believe a great space starts with understanding you. SC Interior (Sakchai Karnchang Co., Ltd.) brings interior design, built-in furniture and renovation together around the way you live.",
-              )}
-            </p>
-            <p className="body-copy">
-              {t(
-                "ด้วยโรงงานผลิตของเราเอง พร้อมทีมผลิตและทีมติดตั้ง เราดูแลตั้งแต่แนวคิดแรกจนถึงวันที่ส่งมอบ เพื่อให้ทุกรายละเอียดลงตัวกับพื้นที่ของคุณ",
-                "With our own factory, production team and installation team, we care for every detail, from the first idea to the final handover.",
+                "SC Interior ให้บริการออกแบบตกแต่งภายใน ผลิตเฟอร์นิเจอร์บิ้วอิน และรีโนเวท พร้อมโรงงานผลิตของเราเอง ดูแลทุกขั้นตอนตั้งแต่การออกแบบ การผลิต ไปจนถึงการติดตั้ง เพื่อให้ทุกพื้นที่ตอบโจทย์การใช้งานและสไตล์ของลูกค้า",
+                "SC Interior provides interior design, built-in furniture and renovation with our own factory. We care for every step, from design and production to installation, creating spaces that suit your needs and style.",
               )}
             </p>
             <a className="text-link" href="#process">
@@ -257,20 +232,26 @@ export default function Home() {
               <ArrowUpRight size={19} />
             </a>
             <div className="about-facts">
-              <div>
-                <House size={23} />
-                <span>{t("โรงงานผลิตของเราเอง", "Our own factory")}</span>
-              </div>
-              <div>
-                <Check size={23} />
-                <span>
-                  {t(
-                    "รับประกันงานติดตั้ง 1 ปี",
-                    "1-year installation warranty",
-                  )}
-                </span>
-              </div>
+              {[
+                t("โรงงานผลิตของเราเอง", "Our own factory"),
+                t(
+                  "ออกแบบตามพื้นที่และความต้องการจริง",
+                  "Designed for your space and needs",
+                ),
+                t(
+                  "ดูแลตั้งแต่เริ่มต้นจนส่งมอบงาน",
+                  "Care from the first idea to handover",
+                ),
+              ].map((fact) => (
+                <div key={fact}>
+                  <Check size={20} />
+                  <span>{fact}</span>
+                </div>
+              ))}
             </div>
+            <p className="warranty-note">
+              {t("รับประกันงานติดตั้ง 1 ปี", "1-year installation warranty")}
+            </p>
           </div>
         </section>
         <section id="services" className="services-section">
@@ -301,15 +282,31 @@ export default function Home() {
                 const Icon = [Ruler, PanelsTopLeft, House, Armchair][i];
                 return (
                   <a className="service-card" key={s.number} href="#contact">
-                    <div className="service-top">
-                      <Icon size={32} strokeWidth={1} />
-                      <span>{s.number}</span>
+                    <div className="service-photo">
+                      <Image
+                        src={s.image}
+                        alt={
+                          t(
+                            "ภาพ AI ตัวอย่างแนวทาง ",
+                            "AI design reference for ",
+                          ) + s.title
+                        }
+                        fill
+                        sizes="(max-width: 600px) 100vw, (max-width: 1100px) 50vw, 300px"
+                      />
+                      <span>{t("ภาพตัวอย่าง", "REFERENCE")}</span>
                     </div>
-                    <h3>{s.title}</h3>
-                    <p>{lang === "th" ? s.th : s.en}</p>
-                    <span className="service-arrow">
-                      <ArrowUpRight size={20} />
-                    </span>
+                    <div className="service-content">
+                      <div className="service-top">
+                        <Icon size={32} strokeWidth={1} />
+                        <span>{s.number}</span>
+                      </div>
+                      <h3>{s.title}</h3>
+                      <p>{lang === "th" ? s.th : s.en}</p>
+                      <span className="service-arrow">
+                        <ArrowUpRight size={20} />
+                      </span>
+                    </div>
                   </a>
                 );
               })}
@@ -329,10 +326,11 @@ export default function Home() {
         <section id="projects" className="section projects reveal">
           <div className="section-heading">
             <div>
-              <p className="eyebrow">03 / SPACE INSPIRATION</p>
+              <p className="eyebrow">03 / OUR PROJECTS</p>
               <h2>
-                {t("จินตนาการถึง", "Imagine your")}{" "}
-                <span>{t("พื้นที่ของคุณ", "own space.")}</span>
+                {t("ทุกพื้นที่", "Every space")}
+                <br />
+                <span>{t("มีเรื่องราวของตัวเอง", "has its own story.")}</span>
               </h2>
             </div>
             <a className="text-link" href="#contact">
@@ -346,72 +344,58 @@ export default function Home() {
               "The following AI-generated images illustrate design inspiration and are not SC Interior projects. Verified company projects will be added when available.",
             )}
           </p>
-          <div className="project-grid">
-            {samples.map((s, i) => (
-              <button
-                className={"project-card project-" + i}
-                key={s.title}
-                onClick={() => setGallery(i)}
-                aria-label={
-                  t("เปิดภาพตัวอย่าง ", "Open reference image ") + s.title
-                }
-              >
-                <div className="project-image">
-                  <img src={s.image} alt={s.type} loading="lazy" />
-                  <span className="image-label">REFERENCE / 0{i + 1}</span>
-                  <span className="project-expand">
-                    <MoveUpRight size={22} />
-                  </span>
-                </div>
-                <div className="project-caption">
-                  <div>
-                    <h3>{s.title}</h3>
-                    <p>{s.type}</p>
-                  </div>
-                  <span>0{i + 1}</span>
-                </div>
-              </button>
-            ))}
-          </div>
+          <ProjectGallery lang={lang} />
         </section>
-        <section className="promise reveal">
-          <div className="promise-inner">
-            <p className="eyebrow light">
-              CRAFTED WITH CARE, FROM START TO FINISH
-            </p>
-            <h2>
-              {t("จากโรงงานของเรา…", "From our factory…")}
-              <br />
-              <em>
-                {t(
-                  "สู่ทุกพื้นที่ที่คุณไว้วางใจ",
-                  "to the spaces you trust us with.",
+        <section id="factory" className="promise reveal">
+          <div className="promise-inner factory-grid">
+            <div className="factory-photo">
+              <Image
+                src={images.factory}
+                alt={t(
+                  "ภาพวาดพื้นที่สำรองสำหรับภาพโรงงาน ไม่ใช่ภาพโรงงานจริงของ SC Interior",
+                  "Factory photo placeholder illustration, not an image of SC Interior facilities",
                 )}
-              </em>
-            </h2>
-            <div className="promise-features">
-              {[
-                t("ผลิตเองในโรงงานของเรา", "Made in our own factory"),
-                t("ออกแบบตามพื้นที่จริง", "Designed for your actual space"),
-                t(
-                  "ทีมผลิตและติดตั้งดูแลครบ",
-                  "Dedicated production & installation",
-                ),
-              ].map((x, i) => (
-                <div key={x}>
-                  <span>0{i + 1}</span>
-                  <p>{x}</p>
-                </div>
-              ))}
+                fill
+                sizes="(max-width: 760px) 100vw, 50vw"
+              />
+              <span>
+                {t(
+                  "พื้นที่สำหรับภาพโรงงานจริง",
+                  "SPACE FOR OUR FACTORY PHOTOGRAPH",
+                )}
+              </span>
             </div>
-            <a href="#contact" className="button cream">
-              {t("เริ่มต้นพื้นที่ใหม่ไปด้วยกัน", "Let’s create your space")}
-              <ArrowUpRight size={18} />
-            </a>
+            <div className="factory-copy">
+              <p className="eyebrow light">FACTORY &amp; CRAFTSMANSHIP</p>
+              <h2>
+                FROM OUR FACTORY
+                <br />
+                <em>TO YOUR SPACE</em>
+              </h2>
+              <p className="factory-description">
+                {t(
+                  "เราให้ความสำคัญกับทุกขั้นตอน ตั้งแต่การเลือกวัสดุ การผลิตด้วยเครื่องจักร ไปจนถึงงานประกอบและติดตั้ง เพื่อให้ได้เฟอร์นิเจอร์ที่สวยงามและเหมาะสมกับการใช้งานจริง",
+                  "We care about every step, from selecting materials and machine production to assembly and installation, creating furniture that is beautiful and suited to everyday use.",
+                )}
+              </p>
+              <div className="promise-features">
+                {[
+                  t("เลือกวัสดุ", "Materials"),
+                  t("ผลิตและประกอบ", "Production"),
+                  t("ติดตั้งและส่งมอบ", "Installation"),
+                ].map((feature, index) => (
+                  <div key={feature}>
+                    <span>0{index + 1}</span>
+                    <p>{feature}</p>
+                  </div>
+                ))}
+              </div>
+              <a href="#contact" className="button cream">
+                {t("เริ่มต้นพื้นที่ใหม่ไปด้วยกัน", "Let’s create your space")}
+                <ArrowUpRight size={18} />
+              </a>
+            </div>
           </div>
-          <span className="promise-watermark" aria-hidden="true">
-            SC
-          </span>
         </section>
         <section id="process" className="section process reveal">
           <div className="section-heading">
@@ -433,27 +417,27 @@ export default function Home() {
             {[
               [
                 "Consultation",
-                "พูดคุยและรับฟังความต้องการ",
+                "พูดคุยรายละเอียดและความต้องการ",
                 "We listen to your ideas and needs.",
               ],
               [
                 "Site Survey",
-                "สำรวจและวัดพื้นที่จริง",
+                "สำรวจและวัดพื้นที่หน้างาน",
                 "We survey and measure your space.",
               ],
               [
                 "3D Design",
-                "ออกแบบภาพ 3 มิติให้เห็นภาพ",
+                "ออกแบบและสรุปรายละเอียด",
                 "We bring your space to life in 3D.",
               ],
               [
-                "Factory Production",
-                "ผลิตชิ้นงานในโรงงานของเรา",
+                "Production",
+                "ผลิตเฟอร์นิเจอร์จากโรงงาน",
                 "We craft your furniture in our factory.",
               ],
               [
-                "Installation & Handover",
-                "ติดตั้ง ตรวจสอบ และส่งมอบ",
+                "Installation",
+                "ติดตั้งและส่งมอบงาน",
                 "We install, inspect and hand over.",
               ],
             ].map((s, i) => (
@@ -522,23 +506,16 @@ export default function Home() {
         <section id="contact" className="contact-section">
           <div className="section contact-inner reveal">
             <div className="contact-copy">
-              <p className="eyebrow">05 / LET’S CREATE SOMETHING TOGETHER</p>
+              <p className="eyebrow">05 / CONTACT &amp; QUOTATION</p>
               <h2>
-                {t("ทุกพื้นที่ดี ๆ", "Every beautiful space")}
+                LET’S CREATE
                 <br />
-                <span>
-                  {t("เริ่มจากการพูดคุย", "starts with a conversation.")}
-                </span>
+                <span>YOUR SPACE</span>
               </h2>
               <p>
                 {t(
-                  "เล่าไอเดียของคุณให้เราฟัง แล้วมาสร้างพื้นที่",
-                  "Tell us what you have in mind. Let’s create a space",
-                )}
-                <br />
-                {t(
-                  "ที่ตอบโจทย์การใช้ชีวิตไปด้วยกัน",
-                  "that feels right for the way you live.",
+                  "กำลังมองหาทีมออกแบบและบิ้วอินที่เข้าใจความต้องการของคุณ? ให้ SC Interior ช่วยดูแลพื้นที่ของคุณ",
+                  "Looking for a design and built-in team that understands your needs? Let SC Interior help you create your space.",
                 )}
               </p>
               <a className="contact-phone" href={"tel:" + company.telephone}>
@@ -548,14 +525,26 @@ export default function Home() {
                 <button onClick={() => socialContact(company.lineUrl)}>
                   LINE Official <ArrowUpRight size={15} />
                 </button>
-                <button onClick={() => socialContact(company.messengerUrl)}>
-                  Messenger <ArrowUpRight size={15} />
-                </button>
+                <a
+                  href={company.facebookUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Facebook: SCinteriorThailand <ArrowUpRight size={15} />
+                </a>
+                <a
+                  href={company.mapUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {t("แผนที่โรงงาน", "Factory map")}
+                  <ArrowUpRight size={15} />
+                </a>
               </div>
               <p className="contact-note">
                 {t(
-                  "ช่องทางโซเชียลและแผนที่โรงงานอยู่ระหว่างรอข้อมูลที่ยืนยันแล้ว กรุณาติดต่อทางโทรศัพท์",
-                  "Verified social links and factory map are pending. Please contact us by phone.",
+                  "ลิงก์ LINE Official อยู่ระหว่างรอข้อมูล สามารถติดต่อทางโทรศัพท์หรือ Facebook และเปิดแผนที่โรงงานด้านบน",
+                  "Our LINE Official link is pending. Contact us by phone or Facebook, or open the factory map above.",
                 )}
               </p>
               {notice && (
@@ -605,159 +594,14 @@ export default function Home() {
         className="floating-contact"
         onClick={() => socialContact(company.lineUrl)}
         aria-label={t(
-          "ติดต่อ SC Interior ผ่าน LINE",
-          "Contact SC Interior via LINE",
+          "ติดต่อ SC Interior — ลิงก์ LINE อยู่ระหว่างรอข้อมูล",
+          "Contact SC Interior — LINE link pending",
         )}
       >
         <MessageCircle size={24} />
         <span>{t("คุยกับเรา", "Let’s talk")}</span>
-        <span className="online-dot" />
+        <ArrowUpRight size={14} />
       </button>
-      {gallery !== null && (
-        <div
-          className="lightbox"
-          role="dialog"
-          aria-modal="true"
-          aria-label={samples[gallery].title}
-          onClick={() => setGallery(null)}
-        >
-          <button
-            autoFocus
-            className="lightbox-close"
-            onClick={() => setGallery(null)}
-            aria-label="Close gallery"
-          >
-            <X size={28} />
-          </button>
-          <div onClick={(e) => e.stopPropagation()}>
-            <img src={samples[gallery].image} alt={samples[gallery].type} />
-            <p>
-              {samples[gallery].title} — {samples[gallery].type}
-            </p>
-            <div className="gallery-controls">
-              <button onClick={() => setGallery((gallery + 2) % 3)}>
-                ← {t("ก่อนหน้า", "Previous")}
-              </button>
-              <span>{gallery + 1} / 3</span>
-              <button onClick={() => setGallery((gallery + 1) % 3)}>
-                {t("ถัดไป", "Next")} →
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </>
-  );
-}
-function Quotation({ lang }: { lang: "th" | "en" }) {
-  const [message, setMessage] = useState("");
-  const [copied, setCopied] = useState(false);
-  const t = (a: string, b: string) => (lang === "th" ? a : b);
-  return (
-    <form
-      className="quotation"
-      onSubmit={(e) => {
-        e.preventDefault();
-        const data = new FormData(e.currentTarget);
-        setMessage(
-          `${t("ขอประเมินราคา SC Interior", "SC Interior quotation request")}\n${t("ชื่อ", "Name")}: ${data.get("name")}\n${t("โทร", "Phone")}: ${data.get("phone")}\n${t("ประเภทพื้นที่", "Space")}: ${data.get("space")}\n${t("รายละเอียด", "Details")}: ${data.get("details")}`,
-        );
-        setCopied(false);
-      }}
-    >
-      <h3>{t("เริ่มต้นโปรเจกต์ของคุณ", "Start your project")}</h3>
-      <p className="form-intro">
-        {t(
-          "เตรียมรายละเอียดสำหรับขอประเมินราคาเบื้องต้น",
-          "Prepare your details for an initial quotation.",
-        )}
-      </p>
-      <div className="form-row">
-        <label>
-          {t("ชื่อของคุณ", "Your name")} *
-          <input
-            name="name"
-            required
-            maxLength={100}
-            autoComplete="name"
-            placeholder={t("ชื่อ – นามสกุล", "Full name")}
-          />
-        </label>
-        <label>
-          {t("เบอร์โทรศัพท์", "Phone number")} *
-          <input
-            name="phone"
-            required
-            type="tel"
-            autoComplete="tel"
-            pattern="[0-9+() -]{8,20}"
-            maxLength={20}
-            placeholder="08X-XXX-XXXX"
-          />
-        </label>
-      </div>
-      <label>
-        {t("ประเภทพื้นที่", "Space type")} *
-        <select name="space" required defaultValue="">
-          <option value="" disabled>
-            {t("เลือกประเภทพื้นที่", "Select your space")}
-          </option>
-          <option>{t("บ้าน", "House")}</option>
-          <option>{t("คอนโด", "Condominium")}</option>
-          <option>{t("พื้นที่เชิงพาณิชย์", "Commercial space")}</option>
-          <option>{t("อื่น ๆ", "Other")}</option>
-        </select>
-      </label>
-      <label>
-        {t("เล่าให้เราฟังเกี่ยวกับโปรเจกต์", "Tell us about your project")}
-        <textarea
-          name="details"
-          rows={3}
-          maxLength={2000}
-          placeholder={t(
-            "ขนาดพื้นที่ บริการที่สนใจ และงบประมาณเบื้องต้น…",
-            "Approximate size, services and budget…",
-          )}
-        />
-      </label>
-      <p className="form-disclosure">
-        {t(
-          "แบบฟอร์มนี้เตรียมข้อความบนอุปกรณ์ของคุณเท่านั้น ยังไม่ส่งหรือบันทึกข้อมูลถึงบริษัท กรุณาคัดลอกข้อความแล้วติดต่อทีมงานทางโทรศัพท์",
-          "This form prepares a message on your device. It does not send or store your information with the company. Copy the details and contact our team by phone.",
-        )}
-      </p>
-      <button className="button orange" type="submit">
-        {t("เตรียมข้อความขอประเมินราคา", "Prepare quotation request")}
-        <ArrowUpRight size={18} />
-      </button>
-      {message && (
-        <div className="form-result" role="status">
-          <label>
-            {t("ข้อความพร้อมสำหรับติดต่อทีมงาน", "Your message is ready")}
-            <textarea readOnly value={message} rows={6} />
-          </label>
-          <button
-            type="button"
-            className="text-link"
-            onClick={async () => {
-              try {
-                await navigator.clipboard.writeText(message);
-                setCopied(true);
-              } catch {
-                setCopied(false);
-              }
-            }}
-          >
-            {copied
-              ? t("คัดลอกแล้ว", "Copied")
-              : t("คัดลอกข้อความ", "Copy message")}{" "}
-            <ArrowUpRight size={16} />
-          </button>
-          <a href={"tel:" + company.telephone} className="text-link">
-            {t("โทรติดต่อทีมงาน", "Call our team")} <Phone size={16} />
-          </a>
-        </div>
-      )}
-    </form>
   );
 }

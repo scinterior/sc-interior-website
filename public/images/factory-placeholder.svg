@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 780" fill="none">
+<rect width="960" height="780" fill="#e5dfd2"/>
+<path d="M110 560V335l210 90V335l210 90V275h115v285H110Z" fill="#d3c9b7" stroke="#a1947e" stroke-width="2"/>
+<path d="M530 275v-90h115v90M165 470h95v90h-95zM310 470h95v90h-95zM455 470h95v90h-95zM690 560h160M745 560V390h70v170M110 585h740" stroke="#a1947e" stroke-width="2"/>
+<path d="M575 145h30M560 120h60M580 95h35" stroke="#b9aa93" stroke-width="2"/>
+<text x="480" y="670" text-anchor="middle" font-family="sans-serif" font-size="16" fill="#766c5c" letter-spacing="4">FACTORY PHOTO PLACEHOLDER</text>
+<text x="480" y="700" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#766c5c">Illustration only — not an image of SC Interior facilities</text>
+</svg>
