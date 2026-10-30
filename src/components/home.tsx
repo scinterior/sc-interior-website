@@ -128,10 +128,7 @@ function Hero() {
                 "ภาพโรงงาน SC Interior · ภาพต้นฉบับที่บริษัทจัดส่ง",
                 "SC Interior factory · original image supplied by the company",
               )
-            : t(
-                "ภาพแนวคิด AI ตัวอย่าง · ไม่ใช่ผลงานหรือภาพโรงงานจริง",
-                "AI concept placeholder · not an actual project or factory",
-              )}
+            : "AI Interior Concept | ภาพแนวคิดการออกแบบ"}
         </span>
         <div className="slider-controls">
           <span aria-live={running ? "off" : "polite"}>
