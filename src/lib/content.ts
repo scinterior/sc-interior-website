@@ -11,7 +11,8 @@ export const company = {
   telephone: "+66815760104",
   lineUrl: "",
   messengerUrl: "",
-  mapUrl: "",
+  mapUrl: "https://maps.app.goo.gl/QtDNo1nXT9BoJaCT6",
+  facebookUrl: "https://www.facebook.com/SCinteriorThailand",
 };
 export const services = [
   {
@@ -30,7 +31,7 @@ export const services = [
   },
   {
     number: "03",
-    title: "Home Renovation",
+    title: "Renovation",
     th: "เติมชีวิตใหม่ให้พื้นที่ที่คุ้นเคย",
     en: "A new chapter for a familiar space.",
     icon: "renovation",
